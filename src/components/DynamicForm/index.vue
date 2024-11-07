@@ -1,21 +1,19 @@
 <template>
-    <div v-show="!isLoadingDelaying && isComponentLoading" style="padding: 16px">
+    <div v-show="!isLoadingDelaying && isComponentLoading" style="padding: 16px 0; text-align: left">
         <ElSkeleton />
     </div>
     <component ref="componentRef" v-bind="$attrs" :is="FormComponent" />
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, h, ref, shallowRef, getCurrentInstance, watch, type Component } from 'vue';
+import { defineAsyncComponent, h, ref, computed, getCurrentInstance } from 'vue';
 import { ElSkeleton, ElResult } from 'element-plus';
 
-import COMPONENT_MAP from './componentMap'
-
-type FormName = keyof typeof COMPONENT_MAP
+import COMPONENT_MAP from '../Forms/componentMap'
 
 const props = withDefaults(
     defineProps<{
-        name: FormName,
+        name: string,
         /**
          * loading 展示的延迟时间，避免短时间加载时的闪烁问题，默认 200 毫秒
          */
@@ -30,28 +28,36 @@ let componentLoadPromise = new Promise(() => { });
 let componentLoadResolve: (value: unknown) => void
 
 const componentRef = ref(null)
-const FormComponent = shallowRef<Component | null>(null)
 const isComponentLoading = ref(true)
 const isLoadingDelaying = ref(true)
 
-let setupTime: number
+const FormComponent = computed(() => {
+    if (!props.name) return null
+
+    return createFormAsyncComponent(props.name)
+})
+
+let setupTime: number = 0
 const checkDelay = (time?: number) => {
+    isLoadingDelaying.value = true
+
     if (time) {
         if (!setupTime) setupTime = time
 
         if (time - setupTime >= props.loadingDelay) {
+            console.log(time - setupTime)
             isLoadingDelaying.value = false
+            setupTime = 0
             return
         }
     }
 
     window.requestAnimationFrame(checkDelay)
 }
-checkDelay()
 
-
-const createFormAsyncComponent = (componentName: FormName) => {
+const createFormAsyncComponent = (componentName: string) => {
     isComponentLoading.value = true
+    checkDelay()
     componentLoadPromise = new Promise(resolve => {
         componentLoadResolve = resolve;
     })
@@ -59,10 +65,11 @@ const createFormAsyncComponent = (componentName: FormName) => {
     return defineAsyncComponent({
         loader: async () => {
             try {
-                if (!COMPONENT_MAP[componentName]) {
+                const componentImporter = COMPONENT_MAP.get(componentName)
+                if (!componentImporter) {
                     throw new Error(`Can not find Component named ${componentName}.`)
                 }
-                const component = await COMPONENT_MAP[componentName]()
+                const component = await componentImporter()
 
                 isComponentLoading.value = false
                 setTimeout(componentLoadResolve) // 确保 componentLoadResolve 回调时 componentRef 已经初始化了
@@ -77,15 +84,6 @@ const createFormAsyncComponent = (componentName: FormName) => {
         })
     })
 }
-
-// props.name 改变时更新组件内容
-watch(() => props.name, () => {
-    if (!props.name) return
-
-    FormComponent.value = createFormAsyncComponent(props.name)
-}, {
-    immediate: true
-})
 
 const instance = getCurrentInstance()
 instance && (instance.exposeProxy = new Proxy({}, {

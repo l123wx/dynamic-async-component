@@ -2,9 +2,6 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 const pages = import.meta.glob('@/views/**/*.vue')
 
-console.log(pages)
-
-
 export default createRouter({
     routes: [
         ...Object.keys(pages).map(key => {
