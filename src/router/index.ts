@@ -1,13 +1,23 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+const pages = import.meta.glob('@/views/**/*.vue')
+
+console.log(pages)
+
+
 export default createRouter({
     routes: [
+        ...Object.keys(pages).map(key => {
+            const pageName = key.match(/\/views\/(.+)\.vue$/)?.[1] || ''
+            return {
+                path: `/${pageName.toLowerCase()}`,
+                component: pages[key]
+            }
+        }),
         {
-            path: '/',
-            name: 'Home',
-            component: () => import('../views/index.vue'),
-            children: []
-        }
+            path: '/:pathMatch(.*)*',
+            component: () => import('@/views/index.vue')
+        },
     ],
     history: createWebHashHistory()
 })
