@@ -26,7 +26,6 @@ const activeComponentKey = ref(COMPONENT_LIST[0])
 
 const handleRadioChange = () => {
   console.log(componentRef.value)
-
   componentRef.value?.hello()
 }
 </script>

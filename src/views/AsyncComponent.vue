@@ -17,9 +17,9 @@ const COMPONENT_LIST = [...COMPONENT_MAP.keys()];
 
 const componentRef = ref<ComponentInstance | null>(null)
 const activeComponentKey = ref(COMPONENT_LIST[0])
+
 const activeComponent = computed(() => {
   const componentImporter = COMPONENT_MAP.get(activeComponentKey.value)
-
   if (!componentImporter) return null
 
   return defineAsyncComponent(componentImporter)
@@ -27,19 +27,22 @@ const activeComponent = computed(() => {
 
 const handleRadioChange = () => {
   console.log(componentRef.value)
+  componentRef.value?.hello()
 
   nextTick(() => {
     console.log(componentRef.value)
+    componentRef.value?.hello()
   })
 
   setTimeout(() => {
     console.log(componentRef.value)
+    componentRef.value?.hello()
   })
 
   setTimeout(() => {
     console.log(componentRef.value)
+    componentRef.value?.hello()
   }, 1000)
 
-  componentRef.value?.hello()
 }
 </script>

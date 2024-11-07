@@ -21,19 +21,21 @@ const activeComponent = ref(COMPONENT_LIST[0])
 
 const handleRadioChange = () => {
   console.log(componentRef.value)
+  componentRef.value?.hello()
 
   nextTick(() => {
     console.log(componentRef.value)
+    componentRef.value?.hello()
   })
 
   setTimeout(() => {
     console.log(componentRef.value)
+    componentRef.value?.hello()
   })
 
   setTimeout(() => {
     console.log(componentRef.value)
+    componentRef.value?.hello()
   }, 1000)
-
-  componentRef.value?.hello()
 }
 </script>
