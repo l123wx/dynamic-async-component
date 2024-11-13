@@ -8,34 +8,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 import { ElRadioGroup, ElRadio } from 'element-plus'
 
 import DynamicForm from '@/components/DynamicForm/index.vue'
-import COMPONENT_MAP, { type ComponentInstance } from '@/components/Forms/componentMap'
+import COMPONENT_MAP from '@/components/Forms/componentMap'
 
 const COMPONENT_LIST = [...COMPONENT_MAP.keys()]
 
-const componentRef = ref<ComponentInstance | null>(null)
+const componentRef = ref<InstanceType<typeof DynamicForm> | null>(null)
 const activeComponent = ref(COMPONENT_LIST[0])
 
 const handleRadioChange = () => {
   console.log(componentRef.value)
-  componentRef.value?.hello()
-
-  nextTick(() => {
-    console.log(componentRef.value)
-    componentRef.value?.hello()
-  })
-
-  setTimeout(() => {
-    console.log(componentRef.value)
-    componentRef.value?.hello()
-  })
-
-  setTimeout(() => {
-    console.log(componentRef.value)
-    componentRef.value?.hello()
-  }, 1000)
+  componentRef.value!.call('hello')
 }
 </script>
