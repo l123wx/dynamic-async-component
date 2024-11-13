@@ -15,7 +15,7 @@ import { ref } from 'vue'
 import { ElRadioGroup, ElRadio, ElButton } from 'element-plus'
 
 import COMPONENT_MAP from '@/components/Forms/componentMap'
-import useDynamicForm from '@/components/DynamicForm/useDynamicForm';
+import { useDynamicForm } from '@/components/DynamicForm';
 
 const [DynamicForm, componentRef] = useDynamicForm()
 
