@@ -2,7 +2,7 @@
 
 假设以下需求：
 
-一个动态表单页面，在页面初始化的时候需要请求后端 `/getFormInfo` 接口获取 `formType`，请求 `/getFormData` 接口获取 `formData`，根据 `formType` 动态渲染对应的表单组件，然后调用对应组件导出的 `setData` 方法初始数据
+一个动态表单页面，在页面初始化的时候需要请求后端接口获取 `formType` 和 `formData`，根据 `formType` 动态渲染对应的表单组件，然后调用对应组件导出的 `setData` 方法初始数据
 
 ```ts
 type formType: 'FormA' | 'FormB'
@@ -92,13 +92,13 @@ const isLoaded = ref(false)
 ```ts
 ...
 // 请求接口获取 formType
-fetchFormType().then(res => {
-    formType.value = res.formType
-})
 fetchFormData().then(res => {
-    if (isLoaded.value) {
-        componentRef.value.setFormData(formData)
-    }
+    formType.value = res.formType
+    nextTick(() => {
+        if (isLoaded.value) {
+            componentRef.value.setFormData(formData)
+        }
+    })
 })
 ...
 ```

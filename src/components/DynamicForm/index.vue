@@ -24,6 +24,8 @@ const props = withDefaults(
     }
 )
 
+const emit = defineEmits(['register'])
+
 let componentLoadPromise: Promise<void> | undefined;
 /**
  * 在组件初始化完成后，componentLoadResolve 会被调用，而 resolve 方法被调用之后也没用了
@@ -53,7 +55,6 @@ const checkDelay = (time?: number) => {
         if (!setupTime) setupTime = time
 
         if (time - setupTime >= props.loadingDelay) {
-            console.log(time - setupTime)
             isLoadingDelaying.value = false
             setupTime = 0
             return
@@ -93,27 +94,21 @@ const createFormAsyncComponent = (componentName: string) => {
     })
 }
 
-defineExpose({
-    call: async (name: string, ...args: any[]) => {
-        await componentLoadPromise
-        const property = Reflect.get(componentRef.value || {}, name)
-        if (!property) {
-            throw new Error(`There is no property named ${String(name)} on component ${props.name}.`)
-        }
+emit('register', new Proxy({}, {
+    get: (_, name) => {
+        return async (...args: unknown[]) => {
+            await componentLoadPromise
+            const property = Reflect.get(componentRef.value || {}, name)
+            if (!property) {
+                throw new Error(`There is no property named ${String(name)} on component ${props.name}.`)
+            }
 
-        if (typeof property === 'function') {
-            return property(...args)
-        }
+            if (typeof property === 'function') {
+                return property(...args)
+            }
 
-        return property
-    },
-    get: async (name: string) => {
-        await componentLoadPromise
-        return Reflect.get(componentRef.value || {}, name)
-    },
-    has: async (name: string) => {
-        await componentLoadPromise
-        return Reflect.has(componentRef.value || {}, name)
+            return property
+        }
     }
-})
+}))
 </script>
