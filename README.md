@@ -260,3 +260,9 @@ const useDynamicForm = () => {
     return [DynamicComponent, componentRef]
 }
 ```
+
+### TODO
+
+异步加载远端 vue 组件
+
+https://cloud.tencent.com/developer/article/2443047
